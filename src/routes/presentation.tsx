@@ -11,6 +11,7 @@ import {
 import {
   computeChemistry,
   computeDistribution,
+  funFacts,
   personLeadingTypes,
   useEvent,
 } from "@/lib/event-store";
