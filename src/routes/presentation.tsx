@@ -556,9 +556,10 @@ function ChemistryScreen() {
           </motion.div>
         ))}
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-3">
         <Panel title="Strengths" items={report.strengths} accent="oklch(0.78 0.17 85)" />
         <Panel title="Opportunities" items={report.opportunities} accent="oklch(0.72 0.22 320)" />
+        <Panel title="Risk Factors" items={report.risks} accent="oklch(0.7 0.24 25)" />
       </div>
       {report.notable.length > 0 && (
         <div>
