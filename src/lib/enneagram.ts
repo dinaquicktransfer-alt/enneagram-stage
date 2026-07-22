@@ -7,6 +7,9 @@ export interface EnneaTypeInfo {
   description: string;
   color: string; // oklch
   keywords: string[];
+  strengths: string[];
+  blindSpots: string[];
+  growth: string[];
 }
 
 export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
