@@ -473,6 +473,11 @@ function TypeDetailScreen() {
           {info.description}
         </motion.p>
       </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <TraitCard title="Strengths" items={info.strengths} tint="oklch(0.72 0.18 150)" />
+        <TraitCard title="Blind Spots" items={info.blindSpots} tint="oklch(0.68 0.22 25)" />
+        <TraitCard title="Growth" items={info.growth} tint="oklch(0.72 0.18 260)" />
+      </div>
       <div>
         <div className="mb-4 text-center text-sm font-semibold uppercase tracking-[0.3em] text-white/50">
           {members.length > 0 ? `${members.length} in the group` : "No one yet — keep playing!"}
@@ -495,6 +500,30 @@ function TypeDetailScreen() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function TraitCard({ title, items, tint }: { title: string; items: string[]; tint: string }) {
+  return (
+    <div
+      className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur"
+      style={{ boxShadow: `0 0 0 1px ${tint}33 inset` }}
+    >
+      <div
+        className="mb-3 text-xs font-bold uppercase tracking-[0.3em]"
+        style={{ color: tint }}
+      >
+        {title}
+      </div>
+      <ul className="space-y-2 text-lg text-white/85">
+        {items.map((it) => (
+          <li key={it} className="flex gap-2">
+            <span style={{ color: tint }}>•</span>
+            <span>{it}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
