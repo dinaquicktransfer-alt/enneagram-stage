@@ -176,6 +176,34 @@ export const useEvent = create<EventState & Actions>((set, get) => {
   };
 });
 
+export function importBundle(raw: string): { ok: boolean; error?: string } {
+  try {
+    const parsed = JSON.parse(raw);
+    const s: Partial<EventState> = parsed?.state ?? parsed;
+    if (!s || typeof s !== "object") return { ok: false, error: "Missing state." };
+    if (!Array.isArray(s.questions)) return { ok: false, error: "Missing questions[]." };
+    if (!s.people || typeof s.people !== "object") return { ok: false, error: "Missing people{}." };
+    const next: EventState = {
+      screen: (s.screen as Screen) ?? "welcome",
+      questions: s.questions,
+      currentIndex: typeof s.currentIndex === "number" ? s.currentIndex : 0,
+      nominees: s.nominees ?? { red: "", blue: "", green: "" },
+      winnerColor: (s.winnerColor as NomineeColor | null) ?? null,
+      people: s.people as Record<string, Person>,
+      selectedType: (s.selectedType as EnneagramType | null) ?? null,
+      updatedAt: Date.now(),
+    };
+    useEvent.setState(next);
+    if (typeof window !== "undefined") {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* noop */ }
+      if (bc) bc.postMessage(next);
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
 function stripActions(s: EventState & Partial<Actions>): EventState {
   const {
     screen,
