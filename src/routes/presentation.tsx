@@ -11,6 +11,7 @@ import {
 import {
   computeChemistry,
   computeDistribution,
+  funFacts,
   personLeadingTypes,
   useEvent,
 } from "@/lib/event-store";
@@ -513,6 +514,14 @@ function ChemistryScreen() {
             {report.vibe}
           </span>
         </h1>
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mx-auto mt-6 max-w-3xl text-lg text-white/70 md:text-xl"
+        >
+          {report.narrative}
+        </motion.p>
       </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {(
@@ -548,9 +557,10 @@ function ChemistryScreen() {
           </motion.div>
         ))}
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-3">
         <Panel title="Strengths" items={report.strengths} accent="oklch(0.78 0.17 85)" />
         <Panel title="Opportunities" items={report.opportunities} accent="oklch(0.72 0.22 320)" />
+        <Panel title="Risk Factors" items={report.risks} accent="oklch(0.7 0.24 25)" />
       </div>
       {report.notable.length > 0 && (
         <div>
@@ -640,6 +650,7 @@ function SummaryScreen() {
     .reverse()[0];
 
   const report = computeChemistry(list);
+  const facts = funFacts(list);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8">
@@ -688,15 +699,29 @@ function SummaryScreen() {
           Group Personality Summary
         </div>
         <div className="mt-3 text-3xl font-black">{report.vibe}</div>
-        <p className="mt-3 text-lg text-white/70">
-          {list.length} participant{list.length === 1 ? "" : "s"} · {report.strengths.length} standout strengths ·
-          {" "}
-          <span className="text-white">Leadership {report.presence.leadership}%</span>,{" "}
-          <span className="text-white">Support {report.presence.support}%</span>,{" "}
-          <span className="text-white">Creativity {report.presence.creativity}%</span>,{" "}
-          <span className="text-white">Harmony {report.presence.harmony}%</span>.
-        </p>
+        <p className="mt-3 text-lg text-white/70">{report.narrative}</p>
       </div>
+      {facts.length > 0 && (
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+          <div className="text-xs font-semibold uppercase tracking-[0.3em] text-[oklch(0.8_0.2_60)]">
+            Fun Facts
+          </div>
+          <ul className="mt-4 grid gap-3 md:grid-cols-2">
+            {facts.map((f, i) => (
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * i }}
+                className="flex items-start gap-3 text-lg"
+              >
+                <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-[oklch(0.8_0.2_60)]" />
+                <span>{f}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

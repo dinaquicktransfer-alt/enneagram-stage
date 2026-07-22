@@ -233,6 +233,7 @@ export interface ChemistryReport {
   vibe: string;
   strengths: string[];
   opportunities: string[];
+  risks: string[];
   notable: { name: string; note: string }[];
   distribution: Record<EnneagramType, number>;
   presence: {
@@ -241,6 +242,7 @@ export interface ChemistryReport {
     creativity: number;
     harmony: number;
   };
+  narrative: string;
 }
 
 export function computeDistribution(people: Person[]): Record<EnneagramType, number> {
@@ -252,6 +254,17 @@ export function computeDistribution(people: Person[]): Record<EnneagramType, num
     if (leading) dist[leading] += 1;
   });
   return dist;
+}
+
+function peopleByType(people: Person[], t: EnneagramType): Person[] {
+  return people.filter((p) => leadingTypes(p.scores).leading === t);
+}
+
+function namesList(ns: string[]): string {
+  if (ns.length === 0) return "";
+  if (ns.length === 1) return ns[0];
+  if (ns.length === 2) return `${ns[0]} and ${ns[1]}`;
+  return `${ns.slice(0, -1).join(", ")}, and ${ns[ns.length - 1]}`;
 }
 
 export function computeChemistry(people: Person[]): ChemistryReport {
@@ -271,15 +284,41 @@ export function computeChemistry(people: Person[]): ChemistryReport {
     .slice(0, 3)
     .map(([k]) => Number(k) as EnneagramType);
 
-  const strengths = dominant.map(
-    (t) => `Strong ${ENNEAGRAM[t].name} energy — ${ENNEAGRAM[t].keywords[0]}`,
-  );
+  const strengths: string[] = dominant.map((t) => {
+    const members = peopleByType(people, t).map((p) => p.name);
+    const info = ENNEAGRAM[t];
+    const who = members.length ? ` — led by ${namesList(members.slice(0, 3))}` : "";
+    return `Strong ${info.name} energy: ${info.keywords[0]}${who}.`;
+  });
+
   const missing = (Object.entries(dist) as [string, number][])
     .filter(([, v]) => v === 0)
     .map(([k]) => Number(k) as EnneagramType);
-  const opportunities = missing.slice(0, 3).map(
-    (t) => `Room to grow: ${ENNEAGRAM[t].name} (${ENNEAGRAM[t].keywords[0]})`,
-  );
+  const opportunities = missing.slice(0, 3).map((t) => {
+    const info = ENNEAGRAM[t];
+    return `Room to grow — no clear ${info.name}. Invite more ${info.keywords[0].toLowerCase()}.`;
+  });
+
+  const risks: string[] = [];
+  const top = dominant[0];
+  if (top && dist[top] / total >= 0.5 && total >= 3) {
+    const members = peopleByType(people, top).map((p) => p.name);
+    risks.push(
+      `Heavy ${ENNEAGRAM[top].name} concentration (${dist[top]} of ${total}) — ${namesList(members.slice(0, 3))} may drive the room. Balance with other voices.`,
+    );
+  }
+  if (presence.leadership === 0 && total >= 3) {
+    risks.push("No dominant leader archetype — decisions may drift without a clear driver.");
+  }
+  if (presence.harmony === 0 && total >= 3) {
+    risks.push("Low harmony presence — conflicts could escalate without a peacekeeper.");
+  }
+  if (presence.support < 20 && total >= 4) {
+    risks.push("Support energy is thin — check in on emotional labor across the group.");
+  }
+  if (risks.length === 0 && total >= 2) {
+    risks.push("Well-balanced group — no major fault lines detected.");
+  }
 
   const sorted = [...people].sort((a, b) => b.wins - a.wins);
   const notable = sorted.slice(0, 3).map((p) => {
@@ -298,5 +337,207 @@ export function computeChemistry(people: Person[]): ChemistryReport {
       ? `${vibeParts.join(" · ")}`
       : "A group still finding its voice";
 
-  return { vibe, strengths, opportunities, notable, distribution: dist, presence };
+  const namesTop = sorted.slice(0, 3).map((p) => p.name);
+  const narrative =
+    total < 2
+      ? "The group is still forming — play a few more rounds to unlock chemistry."
+      : `${namesList(namesTop)} lead a group defined by ${vibe.toLowerCase()}. Leadership sits at ${presence.leadership}%, support at ${presence.support}%, creativity at ${presence.creativity}%, and harmony at ${presence.harmony}%.`;
+
+  return {
+    vibe,
+    strengths,
+    opportunities,
+    risks,
+    notable,
+    distribution: dist,
+    presence,
+    narrative,
+  };
 }
+
+// ==================== Fun Facts ====================
+
+export function funFacts(people: Person[]): string[] {
+  const list = people;
+  const facts: string[] = [];
+  if (list.length === 0) return facts;
+
+  const totalNoms = list.reduce((s, p) => s + p.nominations, 0);
+  const totalWins = list.reduce((s, p) => s + p.wins, 0);
+  facts.push(`${list.length} players · ${totalNoms} total nominations · ${totalWins} total wins.`);
+
+  const neverWon = list.filter((p) => p.wins === 0 && p.nominations > 0);
+  if (neverWon.length) {
+    facts.push(
+      `${namesList(neverWon.slice(0, 3).map((p) => p.name))} nominated but never won — cult favorites.`,
+    );
+  }
+
+  const undefeated = list.filter((p) => p.wins > 0 && p.wins === p.nominations);
+  if (undefeated.length) {
+    facts.push(
+      `Undefeated: ${namesList(undefeated.slice(0, 3).map((p) => p.name))} won every time nominated.`,
+    );
+  }
+
+  const winRate = list
+    .filter((p) => p.nominations >= 2)
+    .map((p) => ({ p, r: p.wins / p.nominations }))
+    .sort((a, b) => b.r - a.r);
+  if (winRate.length) {
+    const top = winRate[0];
+    facts.push(
+      `Highest win rate: ${top.p.name} at ${Math.round(top.r * 100)}% (${top.p.wins}/${top.p.nominations}).`,
+    );
+  }
+
+  const dual = list.filter((p) => {
+    const { leading, second } = leadingTypes(p.scores);
+    return !!leading && !!second && Math.abs(p.scores[leading] - p.scores[second]) <= 1;
+  });
+  if (dual.length) {
+    facts.push(
+      `${namesList(dual.slice(0, 2).map((p) => p.name))} sit right between two types — dual-natured.`,
+    );
+  }
+
+  return facts;
+}
+
+// ==================== Export ====================
+
+export interface ExportBundle {
+  version: string;
+  exportedAt: string;
+  state: EventState;
+  derived: {
+    distribution: Record<EnneagramType, number>;
+    people: Array<{
+      name: string;
+      wins: number;
+      nominations: number;
+      scores: Record<EnneagramType, number>;
+      leading: EnneagramType | null;
+      second: EnneagramType | null;
+    }>;
+    chemistry: ChemistryReport;
+    funFacts: string[];
+  };
+}
+
+export function buildExportBundle(): ExportBundle {
+  const s = useEvent.getState();
+  const list = Object.values(s.people);
+  return {
+    version: "1.0",
+    exportedAt: new Date().toISOString(),
+    state: stripActions(s),
+    derived: {
+      distribution: computeDistribution(list),
+      people: list.map((p) => {
+        const { leading, second } = leadingTypes(p.scores);
+        return {
+          name: p.name,
+          wins: p.wins,
+          nominations: p.nominations,
+          scores: p.scores,
+          leading,
+          second,
+        };
+      }),
+      chemistry: computeChemistry(list),
+      funFacts: funFacts(list),
+    },
+  };
+}
+
+export function bundleToJSON(b: ExportBundle): string {
+  return JSON.stringify(b, null, 2);
+}
+
+export function bundleToCSV(b: ExportBundle): string {
+  const header = ["Name", "Wins", "Nominations", "Leading", "Second",
+    ...[1,2,3,4,5,6,7,8,9].map((t) => `Type${t}`)];
+  const rows = [header, ...b.derived.people.map((p) => [
+    p.name, p.wins, p.nominations, p.leading ?? "", p.second ?? "",
+    ...([1,2,3,4,5,6,7,8,9] as EnneagramType[]).map((t) => p.scores[t]),
+  ])];
+  return rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+}
+
+export function bundleToMarkdown(b: ExportBundle): string {
+  const { chemistry, people, funFacts: facts, distribution } = b.derived;
+  const podium = [...people].sort((a, b) => b.wins - a.wins).slice(0, 3);
+  const L: string[] = [];
+  L.push(`# Enneagram Event Report`);
+  L.push(`_Exported ${new Date(b.exportedAt).toLocaleString()}_`);
+  L.push("");
+  L.push(`## Group Vibe`);
+  L.push(`**${chemistry.vibe}**`);
+  L.push("");
+  L.push(chemistry.narrative);
+  L.push("");
+  L.push(`## Presence`);
+  L.push(`- Leadership: ${chemistry.presence.leadership}%`);
+  L.push(`- Support: ${chemistry.presence.support}%`);
+  L.push(`- Creativity: ${chemistry.presence.creativity}%`);
+  L.push(`- Harmony: ${chemistry.presence.harmony}%`);
+  L.push("");
+  L.push(`## Strengths`);       chemistry.strengths.forEach((s) => L.push(`- ${s}`));
+  L.push("");
+  L.push(`## Opportunities`);   chemistry.opportunities.forEach((s) => L.push(`- ${s}`));
+  L.push("");
+  L.push(`## Risk Factors`);    chemistry.risks.forEach((s) => L.push(`- ${s}`));
+  L.push("");
+  L.push(`## Distribution`);
+  ([1,2,3,4,5,6,7,8,9] as EnneagramType[]).forEach((t) =>
+    L.push(`- Type ${t} (${ENNEAGRAM[t].name}): ${distribution[t]}`));
+  L.push("");
+  L.push(`## Podium`);
+  podium.forEach((p, i) => L.push(
+    `${i + 1}. **${p.name}** — ${p.wins} wins, ${p.nominations} noms${p.leading ? ` · ${ENNEAGRAM[p.leading].name}` : ""}`,
+  ));
+  L.push("");
+  L.push(`## Fun Facts`);       facts.forEach((f) => L.push(`- ${f}`));
+  L.push("");
+  L.push(`## All Participants`);
+  L.push(`| Name | Wins | Noms | Leading | Second |`);
+  L.push(`| --- | --- | --- | --- | --- |`);
+  people.forEach((p) => L.push(
+    `| ${p.name} | ${p.wins} | ${p.nominations} | ${p.leading ?? "—"} | ${p.second ?? "—"} |`,
+  ));
+  return L.join("\n");
+}
+
+export function bundleToScript(b: ExportBundle): string {
+  const payload = JSON.stringify(b, null, 2);
+  return `// Enneagram Event Export — self-contained script.
+// Paste into any JS runtime (Node, Deno, browser console) to inspect the event.
+
+const EVENT = ${payload};
+
+function report(e) {
+  const c = e.derived.chemistry;
+  console.log("=== ENNEAGRAM EVENT ===");
+  console.log("Exported:", e.exportedAt);
+  console.log("Vibe:    ", c.vibe);
+  console.log("");
+  console.log(c.narrative);
+  console.log("");
+  console.log("Presence:", c.presence);
+  console.log("Strengths:");     c.strengths.forEach((s) => console.log("  \\u2022", s));
+  console.log("Opportunities:"); c.opportunities.forEach((s) => console.log("  \\u2022", s));
+  console.log("Risks:");         c.risks.forEach((s) => console.log("  \\u2022", s));
+  console.log("Fun facts:");     e.derived.funFacts.forEach((s) => console.log("  \\u2022", s));
+  console.log("");
+  console.log("Participants:");
+  e.derived.people
+    .slice().sort((a, b) => b.wins - a.wins)
+    .forEach((x) => console.log(\`  \${x.name.padEnd(20)} wins=\${x.wins} noms=\${x.nominations} leading=\${x.leading ?? "-"}\`));
+}
+
+report(EVENT);
+if (typeof module !== "undefined") module.exports = EVENT;
+`;
+}
+

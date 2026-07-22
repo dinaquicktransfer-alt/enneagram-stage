@@ -7,7 +7,15 @@ import {
   type EnneagramType,
   type NomineeColor,
 } from "@/lib/enneagram";
-import { personLeadingTypes, useEvent } from "@/lib/event-store";
+import {
+  buildExportBundle,
+  bundleToCSV,
+  bundleToJSON,
+  bundleToMarkdown,
+  bundleToScript,
+  personLeadingTypes,
+  useEvent,
+} from "@/lib/event-store";
 
 export const Route = createFileRoute("/host")({
   head: () => ({
@@ -87,6 +95,7 @@ function HostPanel() {
         <div className="space-y-6">
           <ProgressPanel />
           <ResultsControlPanel />
+          <ExportPanel />
           <DebugPanel />
         </div>
       </main>
@@ -516,6 +525,100 @@ function DebugPanel() {
           </table>
         </div>
       )}
+    </Panel>
+  );
+}
+
+function ExportPanel() {
+  const [format, setFormat] = useState<"json" | "script" | "markdown" | "csv">("json");
+  const [copied, setCopied] = useState(false);
+  const state = useEvent();
+
+  const output = useMemo(() => {
+    const b = buildExportBundle();
+    if (format === "json") return bundleToJSON(b);
+    if (format === "script") return bundleToScript(b);
+    if (format === "markdown") return bundleToMarkdown(b);
+    return bundleToCSV(b);
+  }, [format, state.updatedAt]);
+
+  const ext = format === "markdown" ? "md" : format === "script" ? "js" : format;
+  const mime =
+    format === "json"
+      ? "application/json"
+      : format === "csv"
+      ? "text/csv"
+      : format === "script"
+      ? "application/javascript"
+      : "text/markdown";
+
+  const download = () => {
+    const blob = new Blob([output], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `enneagram-event.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* noop */
+    }
+  };
+
+  const tabs: { key: typeof format; label: string }[] = [
+    { key: "json", label: "JSON" },
+    { key: "script", label: "Script (.js)" },
+    { key: "markdown", label: "Markdown" },
+    { key: "csv", label: "CSV" },
+  ];
+
+  return (
+    <Panel
+      title="Export Event"
+      action={<span className="text-xs font-semibold text-black/50">portable</span>}
+    >
+      <div className="flex flex-wrap gap-1 rounded-lg bg-black/5 p-1">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setFormat(t.key)}
+            className={`flex-1 rounded-md px-2 py-1.5 text-xs font-bold transition ${
+              format === t.key
+                ? "bg-white shadow-sm"
+                : "text-black/60 hover:text-black"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <textarea
+        readOnly
+        value={output}
+        rows={7}
+        className="mt-3 w-full rounded-xl border border-black/10 bg-[oklch(0.98_0_0)] p-3 font-mono text-[10px] leading-relaxed outline-none"
+      />
+      <div className="mt-3 flex gap-2">
+        <button
+          onClick={copy}
+          className="flex-1 rounded-lg bg-[oklch(0.14_0.04_275)] px-3 py-2 text-xs font-bold text-white hover:opacity-90"
+        >
+          {copied ? "Copied ✓" : "Copy to clipboard"}
+        </button>
+        <button
+          onClick={download}
+          className="flex-1 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs font-bold shadow-sm hover:bg-black/5"
+        >
+          Download .{ext}
+        </button>
+      </div>
     </Panel>
   );
 }
