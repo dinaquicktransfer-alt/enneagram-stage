@@ -95,6 +95,7 @@ function HostPanel() {
         <div className="space-y-6">
           <ProgressPanel />
           <ResultsControlPanel />
+          <ExportPanel />
           <DebugPanel />
         </div>
       </main>
