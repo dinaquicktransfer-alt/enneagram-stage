@@ -688,3 +688,133 @@ function ExportPanel() {
     </Panel>
   );
 }
+
+function ImportPanel() {
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const doImport = (raw: string) => {
+    const r = importBundle(raw);
+    setMsg({ ok: r.ok, text: r.ok ? "Event restored." : `Import failed: ${r.error}` });
+  };
+  return (
+    <Panel
+      title="Import Event"
+      action={<span className="text-xs font-semibold text-black/50">restore</span>}
+    >
+      <div className="flex flex-wrap gap-2">
+        <label className="flex-1 cursor-pointer rounded-lg border border-black/10 bg-white px-3 py-2 text-center text-xs font-bold hover:bg-black/5">
+          Load event JSON
+          <input
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              doImport(await f.text());
+              e.target.value = "";
+            }}
+          />
+        </label>
+        <button
+          onClick={async () => {
+            try {
+              const t = await navigator.clipboard.readText();
+              doImport(t);
+            } catch {
+              setMsg({ ok: false, text: "Clipboard unavailable." });
+            }
+          }}
+          className="flex-1 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs font-bold hover:bg-black/5"
+        >
+          Paste from clipboard
+        </button>
+      </div>
+      {msg && (
+        <div className={`mt-3 text-xs font-semibold ${msg.ok ? "text-green-600" : "text-red-600"}`}>
+          {msg.text}
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+function OwnershipCenterPanel() {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [count, setCount] = useState<number | null>(null);
+
+  const rows: { key: keyof typeof BUNDLE_GROUPS; file: string; withEvent?: boolean }[] = [
+    { key: "full", file: "enneagram-event-full-project.zip", withEvent: true },
+    { key: "source", file: "enneagram-event-source.zip" },
+    { key: "components", file: "enneagram-event-components.zip" },
+    { key: "typescript", file: "enneagram-event-typescript.zip" },
+    { key: "eventEngine", file: "enneagram-event-engine.zip" },
+    { key: "enneagramEngine", file: "enneagram-enneagram-engine.zip" },
+    { key: "chemistryEngine", file: "enneagram-chemistry-engine.zip" },
+    { key: "config", file: "enneagram-event-config.zip" },
+    { key: "dataModels", file: "enneagram-event-data-models.zip" },
+    { key: "docs", file: "enneagram-event-docs.zip" },
+  ];
+
+  const download = async (key: keyof typeof BUNDLE_GROUPS, file: string, withEvent?: boolean) => {
+    setBusy(key);
+    try {
+      const extras: Record<string, string> = {};
+      if (withEvent) {
+        extras["event-export.json"] = bundleToJSON(buildExportBundle());
+      }
+      const zip = await buildSourceZip(key, extras);
+      downloadBlob(zip, file);
+      setCount(listBundleFiles(key).length);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const downloadEventPackage = () => {
+    const b = buildExportBundle();
+    const bundle = {
+      version: "1.0",
+      kind: "complete-event-package",
+      exportedAt: new Date().toISOString(),
+      event: b,
+    };
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+    downloadBlob(blob, "complete-event-package.json");
+  };
+
+  return (
+    <Panel
+      title="Ownership Center"
+      action={<span className="text-xs font-semibold text-black/50">take it with you</span>}
+    >
+      <p className="mb-3 text-xs text-black/60">
+        Everything you need to run this platform outside Lovable — source, engines, config, and docs.
+      </p>
+      <div className="grid grid-cols-1 gap-1.5">
+        {rows.map((r) => (
+          <button
+            key={r.key}
+            disabled={busy === r.key}
+            onClick={() => download(r.key, r.file, r.withEvent)}
+            className="flex items-center justify-between rounded-lg border border-black/10 bg-white px-3 py-2 text-left text-xs font-bold shadow-sm hover:bg-black/5 disabled:opacity-50"
+          >
+            <span>Export {BUNDLE_GROUPS[r.key].label}</span>
+            <span className="text-black/40">
+              {busy === r.key ? "…" : `${listBundleFiles(r.key).length} files`}
+            </span>
+          </button>
+        ))}
+        <button
+          onClick={downloadEventPackage}
+          className="mt-1 rounded-lg bg-gradient-to-br from-[oklch(0.55_0.2_290)] to-[oklch(0.65_0.22_320)] px-3 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90"
+        >
+          Export Complete Event Package
+        </button>
+      </div>
+      {count !== null && (
+        <div className="mt-3 text-[11px] text-black/50">Last download: {count} files.</div>
+      )}
+    </Panel>
+  );
+}
+
