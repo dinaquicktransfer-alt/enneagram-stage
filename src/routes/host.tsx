@@ -101,12 +101,71 @@ function HostPanel() {
         </div>
         <div className="space-y-6">
           <ProgressPanel />
+          <ShortcutsPanel />
           <ResultsControlPanel />
           <ExportPanel />
+          <ImportPanel />
+          <OwnershipCenterPanel />
           <DebugPanel />
         </div>
       </main>
     </div>
+  );
+}
+
+function useHostShortcuts() {
+  const state = useEvent();
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tgt = e.target as HTMLElement | null;
+      if (tgt && /INPUT|TEXTAREA|SELECT/.test(tgt.tagName)) return;
+      if (tgt?.isContentEditable) return;
+      const s = useEvent.getState();
+      switch (e.key.toLowerCase()) {
+        case "q": s.showQuestion(); break;
+        case "n": s.showNominees(); break;
+        case "w": s.showWinner(); break;
+        case "arrowright":
+        case "→":
+        case ".": s.nextQuestion(); break;
+        case "r": s.showResults(); break;
+        case "c": s.showChemistry(); break;
+        case "s": s.showSummary(); break;
+        case "1": s.setWinner("red"); break;
+        case "2": s.setWinner("blue"); break;
+        case "3": s.setWinner("green"); break;
+        default: return;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [state.currentIndex, state.questions.length]);
+}
+
+function ShortcutsPanel() {
+  const items: [string, string][] = [
+    ["Q", "Show question"],
+    ["N", "Show nominees"],
+    ["W", "Show winner"],
+    ["→ / .", "Next question"],
+    ["R", "Generate results"],
+    ["C", "Show chemistry"],
+    ["S", "Event summary"],
+    ["1 / 2 / 3", "Pick red / blue / green winner"],
+  ];
+  return (
+    <Panel title="Keyboard Shortcuts">
+      <ul className="grid grid-cols-1 gap-1 text-xs">
+        {items.map(([k, v]) => (
+          <li key={k} className="flex items-center justify-between gap-2 rounded-md px-2 py-1 hover:bg-black/[0.03]">
+            <span className="text-black/60">{v}</span>
+            <kbd className="rounded border border-black/10 bg-white px-1.5 py-0.5 font-mono text-[10px] font-bold shadow-sm">
+              {k}
+            </kbd>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   );
 }
 
