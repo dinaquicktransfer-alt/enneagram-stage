@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ENNEAGRAM,
   SAMPLE_PACKAGE,
@@ -13,9 +13,16 @@ import {
   bundleToJSON,
   bundleToMarkdown,
   bundleToScript,
+  importBundle,
   personLeadingTypes,
   useEvent,
 } from "@/lib/event-store";
+import {
+  BUNDLE_GROUPS,
+  buildSourceZip,
+  downloadBlob,
+  listBundleFiles,
+} from "@/lib/source-bundle";
 
 export const Route = createFileRoute("/host")({
   head: () => ({
