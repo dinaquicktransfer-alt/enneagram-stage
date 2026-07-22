@@ -7,6 +7,9 @@ export interface EnneaTypeInfo {
   description: string;
   color: string; // oklch
   keywords: string[];
+  strengths: string[];
+  blindSpots: string[];
+  growth: string[];
 }
 
 export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
@@ -18,6 +21,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Rational, idealistic, and driven by a strong sense of right and wrong. Ones strive to improve everything around them.",
     color: "oklch(0.68 0.19 25)",
     keywords: ["Integrity", "Discipline", "Ethics"],
+    strengths: ["Principled decisions", "High standards", "Reliable follow-through"],
+    blindSpots: ["Perfectionism", "Self-criticism", "Rigid thinking"],
+    growth: ["Practice self-compassion", "Accept 'good enough'", "Play without a goal"],
   },
   2: {
     type: 2,
@@ -27,6 +33,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Warm, empathetic, and people-pleasing. Twos live to connect and support the people around them.",
     color: "oklch(0.72 0.17 350)",
     keywords: ["Empathy", "Warmth", "Support"],
+    strengths: ["Emotional attunement", "Generosity", "Community glue"],
+    blindSpots: ["Over-giving", "Hidden needs", "Approval-seeking"],
+    growth: ["Name your own needs", "Say no without guilt", "Receive as well as give"],
   },
   3: {
     type: 3,
@@ -36,6 +45,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Ambitious, driven, and image-conscious. Threes are natural leaders who set goals and hit them.",
     color: "oklch(0.78 0.17 85)",
     keywords: ["Ambition", "Charisma", "Drive"],
+    strengths: ["Execution", "Charismatic leadership", "Adaptability"],
+    blindSpots: ["Image over substance", "Workaholism", "Feelings deferred"],
+    growth: ["Rest without earning it", "Share the win", "Own true feelings"],
   },
   4: {
     type: 4,
@@ -45,6 +57,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Self-aware, sensitive, and creative. Fours find meaning in emotional depth and originality.",
     color: "oklch(0.65 0.18 305)",
     keywords: ["Creativity", "Depth", "Authenticity"],
+    strengths: ["Creative vision", "Emotional honesty", "Aesthetic sense"],
+    blindSpots: ["Melancholy loops", "Envy", "Feeling misunderstood"],
+    growth: ["Act before feeling ready", "See what's already here", "Anchor in the ordinary"],
   },
   5: {
     type: 5,
@@ -54,6 +69,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Insightful, curious, and independent. Fives master ideas and pursue knowledge with intensity.",
     color: "oklch(0.62 0.14 240)",
     keywords: ["Insight", "Focus", "Mastery"],
+    strengths: ["Deep expertise", "Clear analysis", "Calm under pressure"],
+    blindSpots: ["Withdrawal", "Hoarding energy", "Detachment"],
+    growth: ["Engage before knowing enough", "Share resources", "Feel in the body"],
   },
   6: {
     type: 6,
@@ -63,6 +81,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Reliable, hardworking, and responsible. Sixes bring loyalty and stability to any team.",
     color: "oklch(0.7 0.16 200)",
     keywords: ["Loyalty", "Trust", "Preparation"],
+    strengths: ["Risk awareness", "Team loyalty", "Contingency planning"],
+    blindSpots: ["Anxiety spirals", "Distrust", "Second-guessing"],
+    growth: ["Trust your own signal", "Act on 70% info", "Notice when things go right"],
   },
   7: {
     type: 7,
@@ -72,6 +93,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Fun-loving, optimistic, and adventurous. Sevens see possibility everywhere and bring the energy.",
     color: "oklch(0.8 0.18 65)",
     keywords: ["Joy", "Ideas", "Adventure"],
+    strengths: ["Idea generation", "Optimism", "Reframing setbacks"],
+    blindSpots: ["Scatter", "Avoiding pain", "Overcommitment"],
+    growth: ["Finish before starting", "Sit with hard feelings", "Depth over novelty"],
   },
   8: {
     type: 8,
@@ -81,6 +105,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Confident, decisive, and protective. Eights lead from the front and never back down.",
     color: "oklch(0.62 0.22 20)",
     keywords: ["Power", "Courage", "Command"],
+    strengths: ["Decisive action", "Protecting others", "Direct communication"],
+    blindSpots: ["Intensity overwhelms", "Control", "Vulnerability hidden"],
+    growth: ["Soften without losing strength", "Let others lead", "Show the softer side"],
   },
   9: {
     type: 9,
@@ -90,6 +117,9 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
       "Easygoing, agreeable, and grounded. Nines create harmony and hold the group together.",
     color: "oklch(0.72 0.15 145)",
     keywords: ["Harmony", "Calm", "Acceptance"],
+    strengths: ["Mediation", "Steady presence", "Inclusive listening"],
+    blindSpots: ["Conflict avoidance", "Self-forgetting", "Merging with others"],
+    growth: ["Voice your preference", "Choose before consensus", "Notice your own agenda"],
   },
 };
 
