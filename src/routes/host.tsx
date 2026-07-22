@@ -45,7 +45,7 @@ export const Route = createFileRoute("/host")({
 
 function HostPanel() {
   const state = useEvent();
-  const q = state.questions[state.currentIndex];
+  useHostShortcuts();
 
   return (
     <div className="min-h-screen bg-[oklch(0.98_0_0)] text-[oklch(0.2_0.04_275)]">
