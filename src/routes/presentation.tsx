@@ -698,15 +698,29 @@ function SummaryScreen() {
           Group Personality Summary
         </div>
         <div className="mt-3 text-3xl font-black">{report.vibe}</div>
-        <p className="mt-3 text-lg text-white/70">
-          {list.length} participant{list.length === 1 ? "" : "s"} · {report.strengths.length} standout strengths ·
-          {" "}
-          <span className="text-white">Leadership {report.presence.leadership}%</span>,{" "}
-          <span className="text-white">Support {report.presence.support}%</span>,{" "}
-          <span className="text-white">Creativity {report.presence.creativity}%</span>,{" "}
-          <span className="text-white">Harmony {report.presence.harmony}%</span>.
-        </p>
+        <p className="mt-3 text-lg text-white/70">{report.narrative}</p>
       </div>
+      {facts.length > 0 && (
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+          <div className="text-xs font-semibold uppercase tracking-[0.3em] text-[oklch(0.8_0.2_60)]">
+            Fun Facts
+          </div>
+          <ul className="mt-4 grid gap-3 md:grid-cols-2">
+            {facts.map((f, i) => (
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * i }}
+                className="flex items-start gap-3 text-lg"
+              >
+                <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-[oklch(0.8_0.2_60)]" />
+                <span>{f}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
