@@ -650,6 +650,7 @@ function SummaryScreen() {
     .reverse()[0];
 
   const report = computeChemistry(list);
+  const facts = funFacts(list);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8">
