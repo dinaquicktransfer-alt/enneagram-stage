@@ -16,6 +16,7 @@ const RAW: Record<string, string> = import.meta.glob(
     "/.prettierignore",
     "/.gitignore",
     "/public/**/*",
+    "!/src/routeTree.gen.ts",
   ],
   { query: "?raw", import: "default", eager: true },
 ) as Record<string, string>;
