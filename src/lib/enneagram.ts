@@ -4,6 +4,7 @@ export interface EnneaTypeInfo {
   type: EnneagramType;
   name: string;
   title: string;
+  role: string; // e.g. "The Heart"
   description: string;
   color: string; // oklch
   keywords: string[];
@@ -12,11 +13,13 @@ export interface EnneaTypeInfo {
   growth: string[];
 }
 
+
 export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
   1: {
     type: 1,
     name: "The Reformer",
     title: "Principled · Purposeful",
+    role: "The Compass",
     description:
       "Rational, idealistic, and driven by a strong sense of right and wrong. Ones strive to improve everything around them.",
     color: "oklch(0.68 0.19 25)",
@@ -29,6 +32,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 2,
     name: "The Helper",
     title: "Caring · Generous",
+    role: "The Heart",
     description:
       "Warm, empathetic, and people-pleasing. Twos live to connect and support the people around them.",
     color: "oklch(0.72 0.17 350)",
@@ -41,6 +45,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 3,
     name: "The Achiever",
     title: "Success-Oriented · Adaptive",
+    role: "The Achiever",
     description:
       "Ambitious, driven, and image-conscious. Threes are natural leaders who set goals and hit them.",
     color: "oklch(0.78 0.17 85)",
@@ -53,6 +58,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 4,
     name: "The Individualist",
     title: "Expressive · Romantic",
+    role: "The Visionary",
     description:
       "Self-aware, sensitive, and creative. Fours find meaning in emotional depth and originality.",
     color: "oklch(0.65 0.18 305)",
@@ -65,6 +71,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 5,
     name: "The Investigator",
     title: "Perceptive · Cerebral",
+    role: "The Investigator",
     description:
       "Insightful, curious, and independent. Fives master ideas and pursue knowledge with intensity.",
     color: "oklch(0.62 0.14 240)",
@@ -77,6 +84,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 6,
     name: "The Loyalist",
     title: "Committed · Security-Oriented",
+    role: "The Protector",
     description:
       "Reliable, hardworking, and responsible. Sixes bring loyalty and stability to any team.",
     color: "oklch(0.7 0.16 200)",
@@ -89,6 +97,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 7,
     name: "The Enthusiast",
     title: "Spontaneous · Versatile",
+    role: "The Spark",
     description:
       "Fun-loving, optimistic, and adventurous. Sevens see possibility everywhere and bring the energy.",
     color: "oklch(0.8 0.18 65)",
@@ -101,6 +110,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 8,
     name: "The Challenger",
     title: "Powerful · Assertive",
+    role: "The Challenger",
     description:
       "Confident, decisive, and protective. Eights lead from the front and never back down.",
     color: "oklch(0.62 0.22 20)",
@@ -113,6 +123,7 @@ export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
     type: 9,
     name: "The Peacemaker",
     title: "Receptive · Reassuring",
+    role: "The Peacemaker",
     description:
       "Easygoing, agreeable, and grounded. Nines create harmony and hold the group together.",
     color: "oklch(0.72 0.15 145)",

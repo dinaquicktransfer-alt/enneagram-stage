@@ -11,12 +11,18 @@ import {
 
 export type Screen =
   | "welcome"
+  | "next-question"
   | "question"
   | "nominees"
   | "winner"
+  | "insight"
+  | "analyzing"
   | "results"
   | "type-detail"
+  | "profiles"
   | "chemistry"
+  | "movie-cast"
+  | "awards"
   | "summary";
 
 export interface Nominees {
@@ -33,6 +39,9 @@ export interface EventState {
   winnerColor: NomineeColor | null;
   people: Record<string, Person>;
   selectedType: EnneagramType | null;
+  selectedPersonId: string | null;
+  movieTheme: string;
+  currentInsight: string | null;
   updatedAt: number;
 }
 
@@ -44,8 +53,12 @@ const initial: EventState = {
   winnerColor: null,
   people: {},
   selectedType: null,
+  selectedPersonId: null,
+  movieTheme: "",
+  currentInsight: null,
   updatedAt: Date.now(),
 };
+
 
 const STORAGE_KEY = "enneagram-event-state-v1";
 const CHANNEL = "enneagram-event-channel-v1";
@@ -70,17 +83,26 @@ interface Actions {
   reset: () => void;
   startEvent: () => void;
   showQuestion: () => void;
+  showNextQuestionReveal: () => void;
   setNominee: (color: NomineeColor, name: string) => void;
   showNominees: () => void;
   setWinner: (color: NomineeColor) => void;
   showWinner: () => void;
   nextQuestion: () => void;
+  showInsight: (text?: string) => void;
+  showAnalyzing: () => void;
   showResults: () => void;
   selectType: (t: EnneagramType) => void;
+  showProfiles: () => void;
+  selectPerson: (id: string | null) => void;
   showChemistry: () => void;
+  showMovieCast: () => void;
+  setMovieTheme: (t: string) => void;
+  showAwards: () => void;
   showSummary: () => void;
   _hydrateFromRemote: (s: EventState) => void;
 }
+
 
 export const useEvent = create<EventState & Actions>((set, get) => {
   const commit = (patch: Partial<EventState>) => {
@@ -173,8 +195,17 @@ export const useEvent = create<EventState & Actions>((set, get) => {
     selectType: (t) => commit({ selectedType: t, screen: "type-detail" }),
     showChemistry: () => commit({ screen: "chemistry" }),
     showSummary: () => commit({ screen: "summary" }),
+    showNextQuestionReveal: () => commit({ screen: "next-question" }),
+    showAnalyzing: () => commit({ screen: "analyzing" }),
+    showInsight: (text) => commit({ screen: "insight", currentInsight: text ?? get().currentInsight }),
+    showProfiles: () => commit({ screen: "profiles", selectedPersonId: null }),
+    selectPerson: (id) => commit({ selectedPersonId: id }),
+    showMovieCast: () => commit({ screen: "movie-cast" }),
+    setMovieTheme: (t) => commit({ movieTheme: t }),
+    showAwards: () => commit({ screen: "awards" }),
   };
 });
+
 
 export function importBundle(raw: string): { ok: boolean; error?: string } {
   try {
@@ -191,8 +222,12 @@ export function importBundle(raw: string): { ok: boolean; error?: string } {
       winnerColor: (s.winnerColor as NomineeColor | null) ?? null,
       people: s.people as Record<string, Person>,
       selectedType: (s.selectedType as EnneagramType | null) ?? null,
+      selectedPersonId: (s.selectedPersonId as string | null) ?? null,
+      movieTheme: typeof s.movieTheme === "string" ? s.movieTheme : "",
+      currentInsight: (s.currentInsight as string | null) ?? null,
       updatedAt: Date.now(),
     };
+
     useEvent.setState(next);
     if (typeof window !== "undefined") {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* noop */ }
@@ -206,26 +241,15 @@ export function importBundle(raw: string): { ok: boolean; error?: string } {
 
 function stripActions(s: EventState & Partial<Actions>): EventState {
   const {
-    screen,
-    questions,
-    currentIndex,
-    nominees,
-    winnerColor,
-    people,
-    selectedType,
-    updatedAt,
+    screen, questions, currentIndex, nominees, winnerColor, people,
+    selectedType, selectedPersonId, movieTheme, currentInsight, updatedAt,
   } = s;
   return {
-    screen,
-    questions,
-    currentIndex,
-    nominees,
-    winnerColor,
-    people,
-    selectedType,
-    updatedAt,
+    screen, questions, currentIndex, nominees, winnerColor, people,
+    selectedType, selectedPersonId, movieTheme, currentInsight, updatedAt,
   };
 }
+
 
 // Cross-tab sync setup
 if (typeof window !== "undefined") {

@@ -276,14 +276,9 @@ function QuestionPackagePanel() {
 
 function EventControlPanel() {
   const {
-    startEvent,
-    showQuestion,
-    showNominees,
-    showWinner,
-    nextQuestion,
-    showResults,
-    showChemistry,
-    showSummary,
+    startEvent, showQuestion, showNextQuestionReveal, showNominees, showWinner,
+    nextQuestion, showInsight, showAnalyzing, showResults, showProfiles,
+    showChemistry, showMovieCast, showAwards, showSummary, setMovieTheme,
   } = useEvent.getState();
   const hasQuestions = useEvent((s) => s.questions.length > 0);
   const hasWinner = useEvent((s) => s.winnerColor !== null);
@@ -292,69 +287,55 @@ function EventControlPanel() {
     return !!(n.red || n.blue || n.green);
   });
   const canNext = useEvent((s) => s.currentIndex < s.questions.length - 1);
+  const movieTheme = useEvent((s) => s.movieTheme);
+  const people = useEvent((s) => s.people);
+  const questions = useEvent((s) => s.questions);
+  const currentIndex = useEvent((s) => s.currentIndex);
 
   const btn =
     "rounded-xl px-4 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40";
 
+  const fireInsight = async () => {
+    const { randomInsight } = await import("@/lib/insights");
+    showInsight(randomInsight(Object.values(people), questions, currentIndex));
+  };
+
+  const dramaticResults = () => {
+    showAnalyzing();
+    setTimeout(() => useEvent.getState().showResults(), 2600);
+  };
+
   return (
     <Panel title="Event Control">
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        <button
-          onClick={startEvent}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_290)] to-[oklch(0.65_0.22_320)]`}
-        >
-          Start Event
-        </button>
-        <button
-          onClick={showQuestion}
-          disabled={!hasQuestions}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_240)] to-[oklch(0.65_0.2_210)]`}
-        >
-          Show Question
-        </button>
-        <button
-          onClick={showNominees}
-          disabled={!hasNominees}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_150)] to-[oklch(0.65_0.2_170)]`}
-        >
-          Show Nominees
-        </button>
-        <button
-          onClick={showWinner}
-          disabled={!hasWinner}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.65_0.2_60)] to-[oklch(0.6_0.22_30)]`}
-        >
-          Show Winner
-        </button>
-        <button
-          onClick={nextQuestion}
-          disabled={!canNext}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.5_0.15_275)] to-[oklch(0.55_0.15_250)]`}
-        >
-          Next Question
-        </button>
-        <button
-          onClick={showResults}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.6_0.22_310)] to-[oklch(0.6_0.22_350)]`}
-        >
-          Generate Results
-        </button>
-        <button
-          onClick={showChemistry}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_200)] to-[oklch(0.6_0.2_170)]`}
-        >
-          Show Chemistry
-        </button>
-        <button
-          onClick={showSummary}
-          className={`${btn} bg-gradient-to-br from-[oklch(0.45_0.1_275)] to-[oklch(0.35_0.05_275)]`}
-        >
-          Event Summary
-        </button>
+        <button onClick={startEvent} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_290)] to-[oklch(0.65_0.22_320)]`}>Start Event</button>
+        <button onClick={showNextQuestionReveal} disabled={!hasQuestions} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_320)] to-[oklch(0.6_0.22_260)]`}>Next Q Reveal</button>
+        <button onClick={showQuestion} disabled={!hasQuestions} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_240)] to-[oklch(0.65_0.2_210)]`}>Show Question</button>
+        <button onClick={showNominees} disabled={!hasNominees} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_150)] to-[oklch(0.65_0.2_170)]`}>Show Nominees</button>
+        <button onClick={showWinner} disabled={!hasWinner} className={`${btn} bg-gradient-to-br from-[oklch(0.65_0.2_60)] to-[oklch(0.6_0.22_30)]`}>Show Winner</button>
+        <button onClick={fireInsight} className={`${btn} bg-gradient-to-br from-[oklch(0.65_0.2_80)] to-[oklch(0.7_0.2_50)]`}>✨ Group Insight</button>
+        <button onClick={nextQuestion} disabled={!canNext} className={`${btn} bg-gradient-to-br from-[oklch(0.5_0.15_275)] to-[oklch(0.55_0.15_250)]`}>Next Question</button>
+        <button onClick={dramaticResults} className={`${btn} bg-gradient-to-br from-[oklch(0.6_0.22_310)] to-[oklch(0.6_0.22_350)]`}>Analyzing → Results</button>
+        <button onClick={showResults} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_310)] to-[oklch(0.55_0.2_340)]`}>Results (skip)</button>
+        <button onClick={showProfiles} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_280)] to-[oklch(0.6_0.2_240)]`}>Personality Reports</button>
+        <button onClick={showChemistry} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_200)] to-[oklch(0.6_0.2_170)]`}>Group Story</button>
+        <button onClick={showAwards} className={`${btn} bg-gradient-to-br from-[oklch(0.7_0.2_65)] to-[oklch(0.65_0.22_35)]`}>🏆 Awards</button>
+        <button onClick={showMovieCast} className={`${btn} bg-gradient-to-br from-[oklch(0.55_0.2_350)] to-[oklch(0.55_0.22_20)]`}>🎬 Movie Cast</button>
+        <button onClick={showSummary} className={`${btn} bg-gradient-to-br from-[oklch(0.45_0.1_275)] to-[oklch(0.35_0.05_275)]`}>Event Summary</button>
+      </div>
+      <div className="mt-4 flex flex-col gap-2">
+        <label className="text-xs font-bold uppercase tracking-widest text-black/60">Movie Theme</label>
+        <input
+          value={movieTheme}
+          onChange={(e) => setMovieTheme(e.target.value)}
+          placeholder="e.g. A heist movie set in Tokyo…"
+          className="w-full rounded-xl border border-black/10 bg-[oklch(0.98_0_0)] p-3 text-sm outline-none focus:border-black/30"
+        />
       </div>
     </Panel>
   );
 }
+
 
 function ProgressPanel() {
   const { currentIndex, questions } = useEvent();
