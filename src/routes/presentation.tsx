@@ -797,3 +797,313 @@ function EmptyState({ label }: { label: string }) {
     </div>
   );
 }
+
+function NextQuestionReveal() {
+  const { currentIndex, questions } = useEvent();
+  const total = questions.length;
+  return (
+    <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 text-center">
+      <motion.div
+        initial={{ scale: 0, rotate: -20 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 180, damping: 12 }}
+        className="rounded-full border border-white/30 bg-white/10 px-8 py-3 text-sm font-bold uppercase tracking-[0.5em] backdrop-blur"
+      >
+        Next Question
+      </motion.div>
+      <motion.h1
+        initial={{ scale: 0.3, opacity: 0, filter: "blur(20px)" }}
+        animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="text-8xl font-black tracking-tighter md:text-[12rem]"
+      >
+        <span className="bg-gradient-to-r from-[oklch(0.85_0.2_60)] via-[oklch(0.75_0.24_350)] to-[oklch(0.72_0.22_260)] bg-clip-text text-transparent">
+          #{Math.min(currentIndex + 1, total)}
+        </span>
+      </motion.h1>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="text-3xl font-semibold uppercase tracking-[0.3em] text-white/70"
+      >
+        Get ready…
+      </motion.p>
+    </div>
+  );
+}
+
+function InsightScreen() {
+  const { currentInsight } = useEvent();
+  return (
+    <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 text-center">
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 14 }}
+        className="rounded-full border border-[oklch(0.8_0.2_60)]/40 bg-[oklch(0.8_0.2_60)]/10 px-8 py-3 text-sm font-bold uppercase tracking-[0.5em] text-[oklch(0.85_0.2_60)] backdrop-blur"
+      >
+        ✨ Group Insight
+      </motion.div>
+      <motion.p
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.7 }}
+        className="text-balance text-5xl font-black leading-tight md:text-7xl"
+      >
+        {currentInsight ?? "The story is unfolding…"}
+      </motion.p>
+    </div>
+  );
+}
+
+function AnalyzingScreen() {
+  return (
+    <div className="mx-auto flex max-w-3xl flex-col items-center gap-10 text-center">
+      <motion.div
+        className="h-32 w-32 rounded-full border-4 border-white/20 border-t-[oklch(0.8_0.2_60)]"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.h1
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-6xl font-black tracking-tight md:text-8xl"
+      >
+        Analyzing…
+      </motion.h1>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 1, 1, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="text-xl uppercase tracking-[0.4em] text-white/60"
+      >
+        Reading the room · Scoring personalities · Finding the story
+      </motion.p>
+    </div>
+  );
+}
+
+function ProfilesScreen() {
+  const { people, selectedPersonId } = useEvent();
+  const list = Object.values(people);
+  const person = selectedPersonId ? people[selectedPersonId] : list[0];
+  if (!person) return <EmptyState label="No participants yet…" />;
+  const profile = buildProfile(person, list);
+  const scenarios = scenariosFor(profile);
+  const info = profile.dominant ? ENNEAGRAM[profile.dominant] : null;
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col gap-8">
+      <div className="text-center">
+        <div className="rounded-full border border-white/20 bg-white/10 px-6 py-2 text-sm font-semibold uppercase tracking-[0.4em] backdrop-blur inline-block">
+          Personality Report
+        </div>
+        <motion.h1
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="mt-4 text-7xl font-black tracking-tight md:text-9xl"
+        >
+          {person.name}
+        </motion.h1>
+        <div className="mt-3 text-2xl font-semibold text-white/70">
+          <span
+            className="inline-block rounded-full px-4 py-1 text-white"
+            style={{ backgroundColor: info?.color ?? "oklch(0.5 0.05 260)" }}
+          >
+            {profile.role}
+          </span>
+          <span className="ml-3 text-white/60">· {profile.confidence}% match</span>
+        </div>
+        <p className="mx-auto mt-4 max-w-2xl text-xl text-white/70">{profile.blend}</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        {profile.top3.map((t, i) => (
+          <motion.div
+            key={t.type}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 * i }}
+            className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-14 w-14 items-center justify-center rounded-full text-2xl font-black text-white"
+                style={{ backgroundColor: ENNEAGRAM[t.type].color }}
+              >
+                {t.type}
+              </div>
+              <div>
+                <div className="text-xl font-black">{ENNEAGRAM[t.type].name}</div>
+                <div className="text-xs uppercase tracking-widest text-white/50">
+                  {ENNEAGRAM[t.type].role}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${t.pct}%` }}
+                transition={{ delay: 0.3 + 0.1 * i, duration: 0.8 }}
+                className="h-full"
+                style={{ backgroundColor: ENNEAGRAM[t.type].color }}
+              />
+            </div>
+            <div className="mt-2 text-right text-sm text-white/60">{t.pct}%</div>
+          </motion.div>
+        ))}
+      </div>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+        <div className="text-xs font-semibold uppercase tracking-[0.3em] text-[oklch(0.8_0.2_60)]">
+          How The Group Sees You
+        </div>
+        <ul className="mt-4 space-y-3">
+          {profile.howGroupSeesYou.map((s, i) => (
+            <motion.li
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.05 * i }}
+              className="text-xl"
+            >
+              — {s}
+            </motion.li>
+          ))}
+        </ul>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {Object.entries(scenarios).map(([k, v], i) => (
+          <motion.div
+            key={k}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 * i }}
+            className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+          >
+            <div className="text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
+              {k}
+            </div>
+            <p className="mt-2 text-lg">{v}</p>
+          </motion.div>
+        ))}
+      </div>
+      {list.length > 1 && (
+        <div className="flex flex-wrap justify-center gap-2">
+          {list.map((p) => (
+            <span
+              key={p.id}
+              className={`rounded-full border px-4 py-1.5 text-sm font-semibold ${p.id === person.id ? "border-white bg-white text-black" : "border-white/20 bg-white/5 text-white/70"}`}
+            >
+              {p.name}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MovieCastScreen() {
+  const { people, movieTheme } = useEvent();
+  const list = Object.values(people);
+  const cast = useMemo(() => movieCast(list, movieTheme), [list, movieTheme]);
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col gap-10">
+      <div className="text-center">
+        <div className="rounded-full border border-white/20 bg-white/10 px-6 py-2 text-sm font-semibold uppercase tracking-[0.4em] backdrop-blur inline-block">
+          🎬 Movie Cast
+        </div>
+        <motion.h1
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="mt-4 text-balance text-5xl font-black tracking-tight md:text-7xl"
+        >
+          <span className="bg-gradient-to-r from-[oklch(0.85_0.2_60)] via-[oklch(0.75_0.24_350)] to-[oklch(0.72_0.22_260)] bg-clip-text text-transparent">
+            {cast.theme}
+          </span>
+        </motion.h1>
+        <p className="mx-auto mt-4 max-w-2xl text-xl text-white/70">{cast.tagline}</p>
+        <p className="mx-auto mt-2 max-w-2xl text-lg text-white/60">{cast.logline}</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {cast.roles.map((r, i) => (
+          <motion.div
+            key={r.name}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 * i, type: "spring", stiffness: 180, damping: 16 }}
+            className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+          >
+            <div className="text-xs font-bold uppercase tracking-[0.3em] text-[oklch(0.8_0.2_60)]">
+              Starring
+            </div>
+            <div className="mt-2 text-3xl font-black">{r.name}</div>
+            <div className="mt-1 text-lg font-semibold text-white/80">as {r.role}</div>
+            <p className="mt-3 text-sm text-white/60">{r.note}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AwardsScreen() {
+  const { people } = useEvent();
+  const list = Object.values(people);
+  const awardList = useMemo(() => awards(list), [list]);
+  const story = useMemo(() => groupStory(list), [list]);
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col gap-10">
+      <div className="text-center">
+        <div className="rounded-full border border-white/20 bg-white/10 px-6 py-2 text-sm font-semibold uppercase tracking-[0.4em] backdrop-blur inline-block">
+          🏆 Awards Ceremony
+        </div>
+        <motion.h1
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="mt-4 text-6xl font-black tracking-tight md:text-8xl"
+        >
+          <span className="bg-gradient-to-r from-[oklch(0.85_0.2_60)] via-[oklch(0.75_0.24_350)] to-[oklch(0.72_0.22_260)] bg-clip-text text-transparent">
+            {story.archetype}
+          </span>
+        </motion.h1>
+        <p className="mx-auto mt-4 max-w-3xl text-xl text-white/70">{story.story}</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {awardList.map((a, i) => (
+          <motion.div
+            key={a.title}
+            initial={{ opacity: 0, scale: 0.8, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.08 * i, type: "spring", stiffness: 180, damping: 14 }}
+            className="rounded-3xl border p-6 text-center backdrop-blur"
+            style={{
+              borderColor: `${a.color}55`,
+              background: `linear-gradient(180deg, ${a.color}22, oklch(1 0 0 / 0.03))`,
+            }}
+          >
+            <div className="text-5xl">{a.emoji}</div>
+            <div className="mt-2 text-xs font-bold uppercase tracking-[0.3em]" style={{ color: a.color }}>
+              {a.title}
+            </div>
+            <div className="mt-3 text-2xl font-black">{a.winner ?? "—"}</div>
+            <div className="mt-1 text-xs uppercase tracking-widest text-white/60">{a.subtitle}</div>
+          </motion.div>
+        ))}
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+          <div className="text-xs font-bold uppercase tracking-[0.3em] text-[oklch(0.8_0.2_60)]">
+            Superpower
+          </div>
+          <p className="mt-3 text-xl">{story.superpower}</p>
+        </div>
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+          <div className="text-xs font-bold uppercase tracking-[0.3em] text-[oklch(0.72_0.22_320)]">
+            Challenge
+          </div>
+          <p className="mt-3 text-xl">{story.challenge}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
