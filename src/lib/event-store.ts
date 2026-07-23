@@ -83,17 +83,26 @@ interface Actions {
   reset: () => void;
   startEvent: () => void;
   showQuestion: () => void;
+  showNextQuestionReveal: () => void;
   setNominee: (color: NomineeColor, name: string) => void;
   showNominees: () => void;
   setWinner: (color: NomineeColor) => void;
   showWinner: () => void;
   nextQuestion: () => void;
+  showInsight: (text?: string) => void;
+  showAnalyzing: () => void;
   showResults: () => void;
   selectType: (t: EnneagramType) => void;
+  showProfiles: () => void;
+  selectPerson: (id: string | null) => void;
   showChemistry: () => void;
+  showMovieCast: () => void;
+  setMovieTheme: (t: string) => void;
+  showAwards: () => void;
   showSummary: () => void;
   _hydrateFromRemote: (s: EventState) => void;
 }
+
 
 export const useEvent = create<EventState & Actions>((set, get) => {
   const commit = (patch: Partial<EventState>) => {
