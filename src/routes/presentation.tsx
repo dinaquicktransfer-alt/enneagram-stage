@@ -15,6 +15,8 @@ import {
   personLeadingTypes,
   useEvent,
 } from "@/lib/event-store";
+import { awards, buildProfile, groupStory, movieCast, scenariosFor } from "@/lib/insights";
+
 
 export const Route = createFileRoute("/presentation")({
   head: () => ({
