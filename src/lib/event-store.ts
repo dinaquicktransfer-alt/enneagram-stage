@@ -11,12 +11,18 @@ import {
 
 export type Screen =
   | "welcome"
+  | "next-question"
   | "question"
   | "nominees"
   | "winner"
+  | "insight"
+  | "analyzing"
   | "results"
   | "type-detail"
+  | "profiles"
   | "chemistry"
+  | "movie-cast"
+  | "awards"
   | "summary";
 
 export interface Nominees {
@@ -33,6 +39,9 @@ export interface EventState {
   winnerColor: NomineeColor | null;
   people: Record<string, Person>;
   selectedType: EnneagramType | null;
+  selectedPersonId: string | null;
+  movieTheme: string;
+  currentInsight: string | null;
   updatedAt: number;
 }
 
@@ -44,8 +53,12 @@ const initial: EventState = {
   winnerColor: null,
   people: {},
   selectedType: null,
+  selectedPersonId: null,
+  movieTheme: "",
+  currentInsight: null,
   updatedAt: Date.now(),
 };
+
 
 const STORAGE_KEY = "enneagram-event-state-v1";
 const CHANNEL = "enneagram-event-channel-v1";
