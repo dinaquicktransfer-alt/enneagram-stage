@@ -204,8 +204,12 @@ export function importBundle(raw: string): { ok: boolean; error?: string } {
       winnerColor: (s.winnerColor as NomineeColor | null) ?? null,
       people: s.people as Record<string, Person>,
       selectedType: (s.selectedType as EnneagramType | null) ?? null,
+      selectedPersonId: (s.selectedPersonId as string | null) ?? null,
+      movieTheme: typeof s.movieTheme === "string" ? s.movieTheme : "",
+      currentInsight: (s.currentInsight as string | null) ?? null,
       updatedAt: Date.now(),
     };
+
     useEvent.setState(next);
     if (typeof window !== "undefined") {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* noop */ }
