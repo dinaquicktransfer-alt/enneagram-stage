@@ -223,26 +223,15 @@ export function importBundle(raw: string): { ok: boolean; error?: string } {
 
 function stripActions(s: EventState & Partial<Actions>): EventState {
   const {
-    screen,
-    questions,
-    currentIndex,
-    nominees,
-    winnerColor,
-    people,
-    selectedType,
-    updatedAt,
+    screen, questions, currentIndex, nominees, winnerColor, people,
+    selectedType, selectedPersonId, movieTheme, currentInsight, updatedAt,
   } = s;
   return {
-    screen,
-    questions,
-    currentIndex,
-    nominees,
-    winnerColor,
-    people,
-    selectedType,
-    updatedAt,
+    screen, questions, currentIndex, nominees, winnerColor, people,
+    selectedType, selectedPersonId, movieTheme, currentInsight, updatedAt,
   };
 }
+
 
 // Cross-tab sync setup
 if (typeof window !== "undefined") {
