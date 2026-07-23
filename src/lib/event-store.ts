@@ -195,8 +195,17 @@ export const useEvent = create<EventState & Actions>((set, get) => {
     selectType: (t) => commit({ selectedType: t, screen: "type-detail" }),
     showChemistry: () => commit({ screen: "chemistry" }),
     showSummary: () => commit({ screen: "summary" }),
+    showNextQuestionReveal: () => commit({ screen: "next-question" }),
+    showAnalyzing: () => commit({ screen: "analyzing" }),
+    showInsight: (text) => commit({ screen: "insight", currentInsight: text ?? get().currentInsight }),
+    showProfiles: () => commit({ screen: "profiles", selectedPersonId: null }),
+    selectPerson: (id) => commit({ selectedPersonId: id }),
+    showMovieCast: () => commit({ screen: "movie-cast" }),
+    setMovieTheme: (t) => commit({ movieTheme: t }),
+    showAwards: () => commit({ screen: "awards" }),
   };
 });
+
 
 export function importBundle(raw: string): { ok: boolean; error?: string } {
   try {
