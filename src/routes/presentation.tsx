@@ -53,13 +53,20 @@ function Presentation() {
             className="w-full"
           >
             {screen === "welcome" && <Welcome />}
+            {screen === "next-question" && <NextQuestionReveal />}
             {screen === "question" && <QuestionScreen />}
             {screen === "nominees" && <NomineesScreen />}
             {screen === "winner" && <WinnerScreen />}
+            {screen === "insight" && <InsightScreen />}
+            {screen === "analyzing" && <AnalyzingScreen />}
             {screen === "results" && <ResultsScreen />}
             {screen === "type-detail" && <TypeDetailScreen />}
+            {screen === "profiles" && <ProfilesScreen />}
             {screen === "chemistry" && <ChemistryScreen />}
+            {screen === "movie-cast" && <MovieCastScreen />}
+            {screen === "awards" && <AwardsScreen />}
             {screen === "summary" && <SummaryScreen />}
+
           </motion.div>
         </AnimatePresence>
       </div>
