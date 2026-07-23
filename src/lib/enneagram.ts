@@ -4,6 +4,7 @@ export interface EnneaTypeInfo {
   type: EnneagramType;
   name: string;
   title: string;
+  role: string; // e.g. "The Heart"
   description: string;
   color: string; // oklch
   keywords: string[];
@@ -11,6 +12,7 @@ export interface EnneaTypeInfo {
   blindSpots: string[];
   growth: string[];
 }
+
 
 export const ENNEAGRAM: Record<EnneagramType, EnneaTypeInfo> = {
   1: {
